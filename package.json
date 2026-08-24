@@ -1,6 +1,6 @@
 {
   "name": "react-mini-i18n",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Minimal React translation: a key → text dictionary, a translate function, a Trans component and a provider. No dependency, no file format imposed.",
   "keywords": [
     "react",
