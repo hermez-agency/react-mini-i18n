@@ -91,7 +91,7 @@ be ignored.
 
 In practice: libraries that use it should declare `react-mini-i18n` as a
 **peerDependency**, never a dependency — as
-[`react-data-form`](https://github.com/SalvadorCardona/react-data-form) does.
+[`react-data-form`](https://github.com/hermez-agency/react-data-form) does.
 
 ## Development
 
@@ -114,3 +114,7 @@ CI publishes to npm once merged to `main`.
 ## License
 
 MIT
+
+---
+
+A Hermez product — [hermez.dev](https://hermez.dev).

@@ -10,15 +10,15 @@
     "typescript"
   ],
   "license": "MIT",
-  "author": "Salvador Cardona",
+  "author": "Hermez (https://hermez.dev)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SalvadorCardona/react-mini-i18n.git"
+    "url": "git+https://github.com/hermez-agency/react-mini-i18n.git"
   },
   "bugs": {
-    "url": "https://github.com/SalvadorCardona/react-mini-i18n/issues"
+    "url": "https://github.com/hermez-agency/react-mini-i18n/issues"
   },
-  "homepage": "https://github.com/SalvadorCardona/react-mini-i18n#readme",
+  "homepage": "https://github.com/hermez-agency/react-mini-i18n#readme",
   "type": "module",
   "sideEffects": false,
   "files": [
