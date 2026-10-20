@@ -1,5 +1,13 @@
 # react-mini-i18n
 
+## 0.2.1
+
+### Patch Changes
+
+- 43c88cb: Move the package under Hermez: the repository now lives at
+  `hermez-agency/react-mini-i18n`, and `author`, `repository`, `bugs` and
+  `homepage` point there.
+
 ## 0.2.0
 
 ### Minor Changes
