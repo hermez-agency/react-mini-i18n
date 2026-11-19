@@ -68,8 +68,9 @@ reports whether a key exists (case-insensitive).
 ### Loading asynchronously
 
 `TranslationProvider` fetches the dictionary on mount and renders its children
-only once the response arrives — which keeps raw keys from flashing on screen
-while loading.
+right away, showing each key until its translation arrives. To render a complete
+first page, on a server for instance, pass the dictionary up front with
+`initialTranslations`.
 
 ```tsx
 <TranslationProvider provider={() => api.get("/translations")}>
