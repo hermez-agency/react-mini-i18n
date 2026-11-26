@@ -78,6 +78,26 @@ first page, on a server for instance, pass the dictionary up front with
 </TranslationProvider>
 ```
 
+Two optional props shape what happens while the dictionary is in flight, and
+when it fails:
+
+- `fallback` is rendered instead of the children until `provider` resolves.
+  Without it, the children render at once and show keys until the translations
+  arrive.
+- `onError` is called with the error if `provider` rejects. The children render
+  anyway, with keys standing in for the translations, so a failed request never
+  leaves the page blank.
+
+```tsx
+<TranslationProvider
+  provider={() => api.get("/translations")}
+  fallback={<Spinner />}
+  onError={(error) => reportError(error)}
+>
+  <App />
+</TranslationProvider>
+```
+
 Components below the provider can read the context to trigger a reload:
 
 ```ts

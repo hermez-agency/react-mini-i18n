@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react"
 import { renderToStaticMarkup } from "react-dom/server"
-import { beforeEach, describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import { TranslationProvider } from "@/provider/TranslationProvider"
 import { Trans } from "@/components/Trans"
 import { setTranslation } from "@/translate"
@@ -57,5 +57,91 @@ describe("TranslationProvider", () => {
 
     expect(screen.getByText("Salut")).toBeDefined()
     await waitFor(() => expect(screen.getByText("Bonjour")).toBeDefined())
+  })
+
+  it("shows the fallback instead of the children while the dictionary loads", async () => {
+    const { container } = render(
+      <TranslationProvider
+        provider={() => new Promise(() => {})}
+        fallback={<p>Chargement…</p>}
+      >
+        <Trans>hello</Trans>
+      </TranslationProvider>
+    )
+
+    expect(container.textContent).toBe("Chargement…")
+  })
+
+  it("replaces the fallback with the children once the dictionary arrives", async () => {
+    render(
+      <TranslationProvider
+        provider={async () => ({ hello: "Bonjour" })}
+        fallback={<p>Chargement…</p>}
+      >
+        <Trans>hello</Trans>
+      </TranslationProvider>
+    )
+
+    expect(screen.getByText("Chargement…")).toBeDefined()
+    await waitFor(() => expect(screen.getByText("Bonjour")).toBeDefined())
+    expect(screen.queryByText("Chargement…")).toBeNull()
+  })
+
+  it("renders the children without waiting when the dictionary is known up front", () => {
+    const { container } = render(
+      <TranslationProvider
+        initialTranslations={{ hello: "Bonjour" }}
+        provider={() => new Promise(() => {})}
+        fallback={<p>Chargement…</p>}
+      >
+        <Trans>hello</Trans>
+      </TranslationProvider>
+    )
+
+    expect(container.textContent).toBe("Bonjour")
+  })
+
+  it("calls onError and renders the children with keys when the dictionary fails", async () => {
+    const error = new Error("network down")
+    const onError = vi.fn()
+
+    render(
+      <TranslationProvider
+        provider={() => Promise.reject(error)}
+        fallback={<p>Chargement…</p>}
+        onError={onError}
+      >
+        <Trans>hello</Trans>
+      </TranslationProvider>
+    )
+
+    await waitFor(() => expect(screen.getByText("hello")).toBeDefined())
+    expect(screen.queryByText("Chargement…")).toBeNull()
+    expect(onError).toHaveBeenCalledTimes(1)
+    expect(onError).toHaveBeenCalledWith(error)
+  })
+
+  it("renders the children when the dictionary fails without an onError", async () => {
+    render(
+      <TranslationProvider provider={() => Promise.reject(new Error("boom"))}>
+        <Trans>hello</Trans>
+      </TranslationProvider>
+    )
+
+    await waitFor(() => expect(screen.getByText("hello")).toBeDefined())
+  })
+
+  it("renders the fallback on a server, where the dictionary never loads", () => {
+    const html = renderToStaticMarkup(
+      <TranslationProvider
+        provider={async () => ({ hello: "Bonjour" })}
+        fallback={<p>Chargement…</p>}
+      >
+        <Trans>hello</Trans>
+      </TranslationProvider>
+    )
+
+    expect(html).toContain("Chargement…")
+    expect(html).not.toContain("hello")
   })
 })
