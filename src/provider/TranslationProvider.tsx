@@ -21,12 +21,27 @@ interface ElemPropsInterface {
    * bundled file, or a payload the server already holds.
    */
   initialTranslations?: TranslationsBagInterface
+  /**
+   * Rendered in place of the children while `provider` is loading.
+   *
+   * Without it, the children render straight away and show keys until the
+   * dictionary arrives. Pass it when keys on screen would be worse than a
+   * loading state.
+   */
+  fallback?: ReactNode
+  /**
+   * Called with the error when `provider` rejects. The children render anyway,
+   * with keys standing in for the translations.
+   */
+  onError?: (error: unknown) => void
 }
 
 export const TranslationProvider = ({
   children,
   provider,
   initialTranslations,
+  fallback,
+  onError,
 }: ElemPropsInterface) => {
   const [translations, setTranslations] =
     useState<TranslationsBagInterface | null>(() => {
@@ -47,7 +62,12 @@ export const TranslationProvider = ({
         setTranslation(data)
         setTranslations(data)
       })
-      .catch(() => setTranslations({}))
+      .catch((error: unknown) => {
+        // Leave the loading state before reporting, so that a throwing
+        // `onError` cannot keep the fallback on screen.
+        setTranslations({})
+        onError?.(error)
+      })
   }
 
   useEffect(() => {
@@ -59,11 +79,14 @@ export const TranslationProvider = ({
   // Render straight away, with keys standing in for their translations until
   // the dictionary lands. Holding the tree back instead would hide the whole
   // application from a server render, and from anything reading its output.
+  // The exception is an explicit `fallback`, shown only while `provider` loads.
+  const isLoading = provider !== undefined && translations === null
+
   return (
     <TranslationContext.Provider
       value={{ translations: translations ?? {}, updateTranslations, translate }}
     >
-      {children}
+      {isLoading && fallback !== undefined ? fallback : children}
     </TranslationContext.Provider>
   )
 }
