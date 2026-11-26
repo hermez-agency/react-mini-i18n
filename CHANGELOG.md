@@ -1,5 +1,27 @@
 # react-mini-i18n
 
+## 0.3.0
+
+### Minor Changes
+
+- 365a2d1: Add `fallback` and `onError` props to `TranslationProvider`.
+
+  `fallback` is rendered in place of the children while an asynchronous `provider` is loading. `onError` is called with the error when `provider` rejects; the children still render, with keys standing in for the translations.
+
+### Patch Changes
+
+- f35f30b: Escape `params` values before `<Trans>` injects them into an HTML translation.
+
+  A translation that is an HTML fragment is rendered as markup, so a value coming
+  from a user (a name, for instance) could inject a `<script>` or an `onerror=`
+  handler. Param values are now escaped first: they always render as text, while
+  the HTML of the dictionary itself renders as before. `translate()` is unchanged.
+
+- a656fea: Refresh mounted `<Trans>` after `setTranslation()` or `addTrans()`: the
+  dictionary is now observable, so changing it (for instance to switch language)
+  updates what is already on screen. Nothing re-renders when the dictionary does
+  not change.
+
 ## 0.2.1
 
 ### Patch Changes
