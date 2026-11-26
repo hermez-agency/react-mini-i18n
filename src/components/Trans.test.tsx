@@ -1,7 +1,8 @@
+import { Profiler } from "react"
 import { beforeEach, describe, expect, it } from "vitest"
-import { render, screen } from "@testing-library/react"
+import { act, render, screen } from "@testing-library/react"
 import { Trans } from "@/components/Trans"
-import { setTranslation } from "@/translate"
+import { addTrans, setTranslation } from "@/translate"
 import { TranslationContext } from "@/provider/TranslationContext"
 
 describe("Trans", () => {
@@ -40,6 +41,43 @@ describe("Trans", () => {
     setTranslation({ cgu: "<b>Terms</b>" })
     const { container } = render(<Trans>cgu</Trans>)
     expect(container.querySelector("b")?.textContent).toBe("Terms")
+  })
+
+  it("updates a mounted Trans after setTranslation", () => {
+    setTranslation({ hello: "Hello" })
+    render(<Trans>hello</Trans>)
+
+    act(() => setTranslation({ hello: "Bonjour" }))
+
+    expect(screen.getByText("Bonjour")).toBeInTheDocument()
+  })
+
+  it("updates a mounted Trans after addTrans", () => {
+    render(<Trans>hello</Trans>)
+    expect(screen.getByText("hello")).toBeInTheDocument()
+
+    act(() => addTrans("hello", "Hello"))
+
+    expect(screen.getByText("Hello")).toBeInTheDocument()
+  })
+
+  it("does not render again when the dictionary does not change", () => {
+    const dictionary = { hello: "Hello" }
+    setTranslation(dictionary)
+    let commits = 0
+    render(
+      <Profiler id="trans" onRender={() => commits++}>
+        <Trans>hello</Trans>
+      </Profiler>
+    )
+    const before = commits
+
+    act(() => {
+      setTranslation(dictionary)
+      addTrans("hello", "Hello")
+    })
+
+    expect(commits).toBe(before)
   })
 
   it("prefers the translate function provided by the context", () => {

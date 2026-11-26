@@ -1,6 +1,9 @@
-import { ReactNode } from "react"
+import { ReactNode, useSyncExternalStore } from "react"
 import useTranslationContext from "@/provider/useTranslationContext"
-import translate from "@/translate"
+import translate, {
+  getTranslations,
+  subscribeTranslations,
+} from "@/translate"
 
 export interface TransPropsInterface {
   params?: Record<string, any>
@@ -10,6 +13,8 @@ export interface TransPropsInterface {
 
 export function Trans({ children, params, className }: TransPropsInterface) {
   const translateContext = useTranslationContext()
+  // Re-render when the dictionary singleton changes (setTranslation, addTrans).
+  useSyncExternalStore(subscribeTranslations, getTranslations, getTranslations)
   if (!children) return
 
   const trans = translateContext ? translateContext.translate : translate
