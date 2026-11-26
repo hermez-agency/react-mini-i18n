@@ -43,6 +43,27 @@ describe("Trans", () => {
     expect(container.querySelector("b")?.textContent).toBe("Terms")
   })
 
+  it("renders a param injected into an HTML translation as text", () => {
+    setTranslation({ welcome: "<p>Hello <b>{{name}}</b></p>" })
+    const name = '<img src="x" onerror="alert(1)"><script>alert(2)</script>'
+    const { container } = render(<Trans params={{ name }}>welcome</Trans>)
+
+    // The markup of the dictionary is kept…
+    expect(container.querySelector("p > b")?.textContent).toBe(name)
+    // …but the param adds no element of its own.
+    expect(container.querySelector("img")).toBeNull()
+    expect(container.querySelector("script")).toBeNull()
+  })
+
+  it("renders a param that is itself markup as text", () => {
+    setTranslation({ greeting: "{{name}}" })
+    const name = '<b onmouseover="alert(1)">Sam</b>'
+    const { container } = render(<Trans params={{ name }}>greeting</Trans>)
+
+    expect(container.querySelector("b")).toBeNull()
+    expect(container.textContent).toBe(name)
+  })
+
   it("updates a mounted Trans after setTranslation", () => {
     setTranslation({ hello: "Hello" })
     render(<Trans>hello</Trans>)

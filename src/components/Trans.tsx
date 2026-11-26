@@ -4,6 +4,7 @@ import translate, {
   getTranslations,
   subscribeTranslations,
 } from "@/translate"
+import { escapeParams } from "@/escapeHtml"
 
 export interface TransPropsInterface {
   params?: Record<string, any>
@@ -19,9 +20,14 @@ export function Trans({ children, params, className }: TransPropsInterface) {
 
   const trans = translateContext ? translateContext.translate : translate
 
-  const content = trans(children as string, params)
-  if (isValidHtml(content)) {
-    return <div dangerouslySetInnerHTML={{ __html: content }} />
+  // Params are escaped before being injected into markup: only the dictionary
+  // may bring HTML, a value coming from a user is always rendered as text.
+  const htmlContent = trans(
+    children as string,
+    params ? escapeParams(params) : params
+  )
+  if (isValidHtml(htmlContent)) {
+    return <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
   }
   if (className) {
     return <span className={className}>{trans(children as string, params)}</span>
